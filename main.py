@@ -1,7 +1,9 @@
 from game.board import *
-#main()
+def main():
+    Board(20).display_board()
 
 if __name__ == "__main__":
-    #main()☺☺☺☺☻♥♦♣♠•◘○ ▄
-    print("■")
+    #■
+    #print("░")
+    main()
 

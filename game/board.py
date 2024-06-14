@@ -5,18 +5,20 @@ class Piece:
     """
     A class for modeling a car 
     """
-    def __init__(self, id, length, ):
+    def __init__(self, id, length):
         self.id = id
         self.length = length
 
 
 
 class Board:
+    
+    
     def __init__(self, size):
         self.row = size
         self.col = size
-        self.board = [['.' for _ in range(self.col)] for _ in range(self.row)]
-        self.pi = {}
+        self.board = [['■' for _ in range(self.col)] for _ in range(self.row)]
+        self.piece = {}
 
 
     def display_board(self):
