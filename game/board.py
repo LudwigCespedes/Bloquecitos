@@ -79,12 +79,31 @@ class Board:
                     self.board[x+i][y+j]= "4"
                 else:
                     print("no DE BOARD")
-                
+
+
+    def get_movable_pieces(self, player):
+        movable_pieces = []
+        for index, piece in enumerate(player.get_pieces()):
+            for x in range(self.row):
+                for y in range(self.col):
+                    if self.is_valid_placement(piece, (x, y), player):
+                        movable_pieces.append((index + 1, piece, (x, y)))
+                        break  # Break to avoid duplicating pieces
+        return movable_pieces
+    def find_valid_moves(self, piece, player):
+        valid_moves = []
+        for x in range(self.row):
+            for y in range(self.col):
+                if self.is_valid_placement(piece, (x, y), player):
+                    valid_moves.append((x, y))
+        return valid_moves
+                    
     def calculate_scores(self):
         scores = {}
+        total = 89
         for player in self.players_pieces:
-            remaining_squares = len(self.players_pieces[player])+1
-            scores[player] = remaining_squares
+            remaining_squares = len(self.players_pieces[player])
+            scores[player] = total-remaining_squares
         return scores
     def display_board(self):
         for row in self.board:
