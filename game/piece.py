@@ -7,7 +7,9 @@ class Player:
             "blue": 2,
             "yellow": 3,
             "pink": 4    
-                        }         
+                        }    
+        self.color_type = self.colors.get(self.color.lower(), '■')
+        """     
         if  self.color.lower() == "red":
             self.color_type = self.colors["red"]
 
@@ -21,7 +23,7 @@ class Player:
             self.color_type = self.colors["pink"]
         else:
             print("si")
-        
+        """
 
 
 
@@ -137,3 +139,44 @@ class Player:
         self.P_21 = [
             [self.color_type,self.color_type]
         ]
+
+class Player1:
+    def __init__(self, name, color):
+        self.color = color
+        self.name = name
+        self.colors = {
+            "red": 1,
+            "blue": 2,
+            "yellow": 3,
+            "pink": 4
+        }
+        self.color_type = self.colors.get(self.color.lower(), '■')
+        self.pieces = self.define_pieces()
+
+    def define_pieces(self):
+        return [
+            [[self.color_type, self.color_type, self.color_type, self.color_type]],
+            [[self.color_type, self.color_type, self.color_type, self.color_type], ['■', '■', self.color_type, '■']],
+            [[self.color_type, '■'], [self.color_type, '■'], [self.color_type, self.color_type]],
+            [[self.color_type, self.color_type], [self.color_type, self.color_type], [self.color_type, '■']],
+            [[self.color_type, self.color_type], [self.color_type, self.color_type], [self.color_type, '■']],
+            [[self.color_type, '■', '■'], [self.color_type, '■', '■'], [self.color_type, self.color_type, self.color_type]],
+            [[self.color_type, self.color_type, '■'], ['■', self.color_type, '■'], ['■', self.color_type, self.color_type]],
+            [['■', self.color_type, '■'], [self.color_type, self.color_type, self.color_type], ['■', self.color_type, '■']],
+            [[self.color_type, '■'], [self.color_type, self.color_type], [self.color_type, '■']],
+            [[self.color_type, self.color_type], [self.color_type, '■'], [self.color_type, self.color_type]],
+            [[self.color_type, '■', '■'], [self.color_type, self.color_type, '■'], ['■', self.color_type, self.color_type]],
+            [[self.color_type, self.color_type, self.color_type], ['■', self.color_type, '■'], ['■', self.color_type, '■']],
+            [[self.color_type, self.color_type, '■'], ['■', self.color_type, self.color_type], ['■', self.color_type, '■']],
+            [[self.color_type, self.color_type, self.color_type, '■'], ['■', '■', self.color_type, self.color_type]],
+            [[self.color_type, self.color_type, '■'], ['■', self.color_type, self.color_type]],
+            [[self.color_type, '■'], [self.color_type, self.color_type]],
+            [[self.color_type, self.color_type], [self.color_type, self.color_type]],
+            [[self.color_type]],
+            [[self.color_type, self.color_type, self.color_type, self.color_type, self.color_type]],
+            [[self.color_type, self.color_type, self.color_type]],
+            [[self.color_type, self.color_type]]
+        ]
+
+    def get_pieces(self):
+        return self.pieces
