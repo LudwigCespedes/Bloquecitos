@@ -1,8 +1,8 @@
 from game.board import Board
 from game.piece import Player
 
-class Menu:
-    def _init_(self):
+class Menu():
+    def __init__(self):
         self.board = Board(20)  # Tamaño del tablero de 20x20
         self.players = []
         self.available_colors = ["red", "blue", "yellow", "pink"]
@@ -175,7 +175,7 @@ class Menu:
     """
         
 
-
+game=Menu()
 
     
     

@@ -1,6 +1,6 @@
 from game.board import *
 from game.piece import Player
-from menu import Menu
+
 
 def main():
     game = Menu()
