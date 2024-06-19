@@ -5,9 +5,27 @@ from collections import deque
 
 
 class Board:
+    """
+    Class representing the Blokus game board.
+    Attributes:
+    - row: Number of rows in the board.
+    - col: Number of columns in the board.
+    - board: 2D list representing the current state of the board, initialized with '■'.
+    - piece: Empty dictionary to store pieces.
+    - corners: List of corner positions on the board.
+    - players_pieces: Dictionary storing positions occupied by each player.
 
+    """
     
     def __init__(self, size):
+
+        """
+        Initializes a Board object with a board of size 'size x size'.
+
+        Parameters:
+        - size: Size of the board (same number of rows and columns).
+        """
+
         self.row = size
         self.col = size
         self.board = [['■' for _ in range(self.col)] for _ in range(self.row)]
@@ -16,6 +34,17 @@ class Board:
         self.players_pieces = {}    
 
     def place_piece(self, piece, position, player):
+        """
+        Places a piece on the board for a given player, if the placement is valid.
+
+        Parameters:
+        - piece: Piece to place, represented as a 2D list.
+        - position: Position on the board where the piece will be placed (tuple of coordinates).
+        - player: Player object performing the move.
+
+        Returns:
+        - True if the piece was placed successfully, False if the move is invalid.
+        """
         if not self.is_valid_placement(piece, position, player):
             print("Movimiento inválido")
             return False
@@ -31,6 +60,19 @@ class Board:
         return True
     
     def is_valid_placement(self, piece, position, player):
+        
+        """
+        Checks if placing a piece on the board is valid for a given player.
+
+        Parameters:
+        - piece: Piece to check, represented as a 2D list.
+        - position: Position on the board where the piece will be placed (tuple of coordinates).
+        - player: Player object performing the move.
+
+        Returns:
+        - True if the placement is valid, False otherwise.
+        """
+
         x, y = position
         is_first_move = not player.name in self.players_pieces
         touches_corner = any([(x + i, y + j) in self.corners for i, row in enumerate(piece) for j, value in enumerate(row) if value != '■'])
@@ -82,6 +124,17 @@ class Board:
 
 
     def get_movable_pieces(self, player):
+
+        """
+        Returns the movable pieces available for a given player along with their valid positions.
+
+        Parameters:
+        - player: Player object for which to determine movable pieces.
+
+        Returns:
+        - List of tuples (piece number, piece, valid position).
+        """
+
         movable_pieces = []
         for index, piece in enumerate(player.get_pieces()):
             for x in range(self.row):
@@ -99,6 +152,14 @@ class Board:
         return valid_moves
                     
     def calculate_scores(self):
+
+        """
+        Calculates player scores based on occupied positions on the board.
+
+        Returns:
+        - Dictionary where keys are player names and values are their scores.
+        """
+
         scores = {}
         total = 89
         for player in self.players_pieces:
@@ -106,10 +167,16 @@ class Board:
             scores[player] = total-remaining_squares
         return scores
     def display_board(self):
+        """
+        Displays the board in the console.
+        """        
         for row in self.board:
             print(' '.join(row))
 
     def __repr__(self):
+        """
+        Returns a string representation of the board.
+        """
         return str(self.board)
 
 
