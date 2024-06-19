@@ -88,7 +88,7 @@ class Board:
                 for y in range(self.col):
                     if self.is_valid_placement(piece, (x, y), player):
                         movable_pieces.append((index + 1, piece, (x, y)))
-                        break  # Break to avoid duplicating pieces
+                        break 
         return movable_pieces
     def find_valid_moves(self, piece, player):
         valid_moves = []
