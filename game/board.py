@@ -47,13 +47,17 @@ class Board:
                     self.players_pieces[player.name].append((x + i, y + j))
         
         piece_tuple = tuple(tuple(row) for row in piece)
+        piece_tuple1 =tuple(tuple(row) for row in player.mirror_piece(piece))
+        piece_tuple2 = tuple(tuple(row) for row in player.transpose_piece(piece))
         player.used_pieces.add(piece_tuple)
+        player.used_pieces.add(piece_tuple1)
+        player.used_pieces.add(piece_tuple2)
         return True
     
     def is_valid_placement(self, piece, position, player):
         piece_tuple = tuple(tuple(row) for row in piece)
         if piece_tuple in player.used_pieces:
-            print("Pieza ya utilizada")
+            #print("Pieza ya utilizada")
             return False
 
         x, y = position

@@ -7,6 +7,7 @@ import random
 from collections import deque
 import heapq
 class Bots:
+    "Acepto invitaciones para un trio"
     def __init__(self, board,player):
         self.board = board
         self.player = player
@@ -77,7 +78,8 @@ class Bots:
 
     def heuristic_use_large_pieces_first(self,matrix):
         """
-        Las piezas más grandes obtienen una puntuación más alta, fomentando su uso temprano en el juego cuando hay más espacio disponible.
+        Las piezas más grandes obtienen una puntuación más alta,
+        fomentando su uso temprano en el juego cuando hay más espacio disponible.
         """
         #print(matrix,"toy")
         count = 0
@@ -124,8 +126,8 @@ class Bots:
                 total_cost.append((self.heuristic_block_opponents(pieces)+0.1)/max2)
             elif heuristic == 'heuristic_use_large_pieces_first':
                 max3 =5
-                
                 total_cost.append((self.heuristic_use_large_pieces_first(pieces)+0.1)/max3)
+
             elif heuristic == 'heurística_de_proximidad_a_la_esquina':
                 max4 =1
                 total_cost.append((self.heurística_de_proximidad_a_la_esquina(pieces)+0.1)/max4)
