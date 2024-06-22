@@ -34,21 +34,9 @@ class Board:
         self.players_pieces = {}    
 
     def place_piece(self, piece, position, player):
-        """
-        Places a piece on the board for a given player, if the placement is valid.
-
-        Parameters:
-        - piece: Piece to place, represented as a 2D list.
-        - position: Position on the board where the piece will be placed (tuple of coordinates).
-        - player: Player object performing the move.
-
-        Returns:
-        - True if the piece was placed successfully, False if the move is invalid.
-        """
         if not self.is_valid_placement(piece, position, player):
-            print("Movimiento inválido")
             return False
-        
+
         x, y = position
         for i, row in enumerate(piece):
             for j, value in enumerate(row):
@@ -57,21 +45,16 @@ class Board:
                     if player.name not in self.players_pieces:
                         self.players_pieces[player.name] = []
                     self.players_pieces[player.name].append((x + i, y + j))
+        
+        piece_tuple = tuple(tuple(row) for row in piece)
+        player.used_pieces.add(piece_tuple)
         return True
     
     def is_valid_placement(self, piece, position, player):
-        
-        """
-        Checks if placing a piece on the board is valid for a given player.
-
-        Parameters:
-        - piece: Piece to check, represented as a 2D list.
-        - position: Position on the board where the piece will be placed (tuple of coordinates).
-        - player: Player object performing the move.
-
-        Returns:
-        - True if the placement is valid, False otherwise.
-        """
+        piece_tuple = tuple(tuple(row) for row in piece)
+        if piece_tuple in player.used_pieces:
+            print("Pieza ya utilizada")
+            return False
 
         x, y = position
         is_first_move = not player.name in self.players_pieces
@@ -177,6 +160,6 @@ class Board:
         """
         Returns a string representation of the board.
         """
-        return str(self.board)
+        return '\n'.join([' '.join(row) for row in self.board])
 
 

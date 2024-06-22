@@ -10,6 +10,7 @@ class Player:
                         }    
         self.color_type = self.colors.get(self.color.lower(), '■')
         self.pieces = self.define_pieces()
+        self.used_pieces = set()
         """     
         if  self.color.lower() == "red":
             self.color_type = self.colors["red"]
@@ -47,7 +48,7 @@ class Player:
 
         self.P_4 = [
             [self.color_type, self.color_type],
-            [self.color_type, self.color_type],
+            [self.color_type, '■'],
             [self.color_type, '■']
         ]
 
@@ -146,7 +147,7 @@ class Player:
             [[self.color_type, self.color_type, self.color_type, self.color_type]],
             [[self.color_type, self.color_type, self.color_type, self.color_type], ['■', '■', self.color_type, '■']],
             [[self.color_type, '■'], [self.color_type, '■'], [self.color_type, self.color_type]],
-            [[self.color_type, self.color_type], [self.color_type, self.color_type], [self.color_type, '■']],
+            [[self.color_type, self.color_type], [self.color_type, '■'], [self.color_type, '■']],
             [[self.color_type, self.color_type], [self.color_type, self.color_type], [self.color_type, '■']],
             [[self.color_type, '■', '■'], [self.color_type, '■', '■'], [self.color_type, self.color_type, self.color_type]],
             [[self.color_type, self.color_type, '■'], ['■', self.color_type, '■'], ['■', self.color_type, self.color_type]],
