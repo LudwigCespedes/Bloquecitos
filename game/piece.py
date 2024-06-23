@@ -1,37 +1,26 @@
 class Player:
+
+# Clase que representa a el jugador en Blokus
+
     def __init__(self, name, color):
-        ""
-        self.color = color
-        self.name = name
+
+        self.color = color # Color del jugador
+        self.name = name # Nombre del jugador
+        # Diccionario de los colores
         self.colors = {
             "red": 1,   
-            "blue": 2,
+            "blue": 2,             
             "yellow": 3,
             "pink": 4    
                         }    
-        self.color_type = self.colors.get(self.color.lower(), '■')
-        self.pieces = self.define_pieces()
-        self.used_pieces = set()
-        """     
-        if  self.color.lower() == "red":
-            self.color_type = self.colors["red"]
-
-        elif  self.color.lower() == "blue":
-            self.color_type = self.colors["blue"]
-
-        elif  self.color.lower() == "yellow":
-            self.color_type = self.colors["yellow"]
-            
-        elif  self.color.lower() == "pink":
-            self.color_type = self.colors["pink"]
-        else:
-            print("si")
-        """
+        self.color_type = self.colors.get(self.color.lower(), '■') # Tipo de color del jugador
+        self.pieces = self.define_pieces() # Lista de las piezas del jugador
+        self.used_pieces = [] #Conjunto de piezas utilizadas por el jugador
+        self.puntos_piezas = []
 
 
 
-
-        # Definición de las formas de las piezas 
+# Definición de las formas de las piezas 
         self.P_1 = [
             [self.color_type, self.color_type, self.color_type, self.color_type]
         ]
@@ -143,29 +132,69 @@ class Player:
             [self.color_type,self.color_type]
         ]
     
+# JUGADOR 
+
+# Refleja una pieza horizontalmente
+
     def mirror_piece(self,piece):
-        #print("Pieza transpuesta:")
+
         mirrored_piece = [row[::-1] for row in piece]
-        
-        #for row in mirrored_piece:
-         #   print(row)
         piece.clear()  
         piece.extend(mirrored_piece)  
         return piece
     
+# Transpone una pieza
+   
     def transpose_piece(self,piece):
-        #"Pieza transpuesta:"
+
         transposed_piece = [[piece[fil][colm] for fil in range(len(piece))] for colm in range(len(piece[0]))]
-        
-        #for row in transposed_piece:
-         #   print(row)
         piece.clear()  
         piece.extend(transposed_piece)  
         return piece
     
+
+# Todas las formas posibles de transposicion y espejo de una piesa
+
+    def all_transpositions(self, piece):
+        transpositions = []
+        current_piece = piece
+
+        # Pieza original
+        transpositions.append(current_piece)
+        
+        # Transpuesta (90 grados de rotación)
+        transposed_piece = [[current_piece[row][col] for row in range(len(current_piece))] for col in range(len(current_piece[0]))]
+        transpositions.append(transposed_piece)
+        
+        # Rotación 180 grados
+        rotated_180_piece = [row[::-1] for row in reversed(current_piece)]
+        transpositions.append(rotated_180_piece)
+        
+        # Rotación 270 grados
+        rotated_270_piece = [[current_piece[row][col] for row in reversed(range(len(current_piece)))] for col in range(len(current_piece[0]))]
+        transpositions.append(rotated_270_piece)
+        
+        # Espejo
+        mirrored_piece = [row[::-1] for row in current_piece]
+        transpositions.append(mirrored_piece)
+        
+        # Transpuesta de espejo
+        mirrored_transposed_piece = [[mirrored_piece[row][col] for row in range(len(mirrored_piece))] for col in range(len(mirrored_piece[0]))]
+        transpositions.append(mirrored_transposed_piece)
+        
+        # Rotación 90 grados del espejo
+        rotated_mirror_piece = [[mirrored_piece[row][col] for row in range(len(mirrored_piece))] for col in range(len(mirrored_piece[0]))]
+        transpositions.append(rotated_mirror_piece)
+        
+        # Rotación 180 grados del espejo
+        rotated_mirror_180_piece = [row[::-1] for row in reversed(mirrored_piece)]
+        transpositions.append(rotated_mirror_180_piece)
+        
+        return transpositions
+
     def define_pieces(self):
         all_piece = []
-        yatusabe=[
+        yatusabe = [
             [[self.color_type, self.color_type, self.color_type, self.color_type]],
             [[self.color_type, self.color_type, self.color_type, self.color_type], ['■', '■', self.color_type, '■']],
             [[self.color_type, '■'], [self.color_type, '■'], [self.color_type, self.color_type]],
@@ -188,49 +217,19 @@ class Player:
             [[self.color_type, self.color_type, self.color_type]],
             [[self.color_type, self.color_type]]
         ]
-        """
-        while yatusabe:
-            ya = yatusabe.pop(0)
-            all_piece.append(ya)
-            all_piece.append(self.mirror_piece(ya))
-            all_piece.append(self.transpose_piece(ya))
-            #yatusabe.remove(ya)
-            print( all_piece,"s") 
-            print("sdsd",self.P_1)
-            break 
-        """
-            
+        
         for i in yatusabe:
-            all_piece.append(i)
-            all_piece.append(self.mirror_piece(i))
-            all_piece.append(self.transpose_piece(i))
-    
+            all_piece.extend(self.all_transpositions(i))
+            #self.puntos_piexas.append(self.all_transpositions(i))
+
+        
         return all_piece
     
-    def define_pieces1(self):
-        return [
-            [[self.color_type, self.color_type, self.color_type, self.color_type]],
-            [[self.color_type, self.color_type, self.color_type, self.color_type], ['■', '■', self.color_type, '■']],
-            [[self.color_type, '■'], [self.color_type, '■'], [self.color_type, self.color_type]],
-            [[self.color_type, self.color_type], [self.color_type, '■'], [self.color_type, '■']],
-            [[self.color_type, self.color_type], [self.color_type, self.color_type], [self.color_type, '■']],
-            [[self.color_type, '■', '■'], [self.color_type, '■', '■'], [self.color_type, self.color_type, self.color_type]],
-            [[self.color_type, self.color_type, '■'], ['■', self.color_type, '■'], ['■', self.color_type, self.color_type]],
-            [['■', self.color_type, '■'], [self.color_type, self.color_type, self.color_type], ['■', self.color_type, '■']],
-            [[self.color_type, '■'], [self.color_type, self.color_type], [self.color_type, '■']],
-            [[self.color_type, self.color_type], [self.color_type, '■'], [self.color_type, self.color_type]],
-            [[self.color_type, '■', '■'], [self.color_type, self.color_type, '■'], ['■', self.color_type, self.color_type]],
-            [[self.color_type, self.color_type, self.color_type], ['■', self.color_type, '■'], ['■', self.color_type, '■']],
-            [[self.color_type, self.color_type, '■'], ['■', self.color_type, self.color_type], ['■', self.color_type, '■']],
-            [[self.color_type, self.color_type, self.color_type, '■'], ['■', '■', self.color_type, self.color_type]],
-            [[self.color_type, self.color_type, '■'], ['■', self.color_type, self.color_type]],
-            [[self.color_type, '■'], [self.color_type, self.color_type]],
-            [[self.color_type, self.color_type], [self.color_type, self.color_type]],
-            [[self.color_type]],
-            [[self.color_type, self.color_type, self.color_type, self.color_type, self.color_type]],
-            [[self.color_type, self.color_type, self.color_type]],
-            [[self.color_type, self.color_type]]
-        ]
 
+
+
+# Lista de las piezas del jugador
     def get_pieces(self):
+
         return self.pieces
+    

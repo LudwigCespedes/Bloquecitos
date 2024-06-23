@@ -5,35 +5,29 @@ from collections import deque
 
 
 class Board:
-    """
-    Class representing the Blokus game board.
-    Attributes:
-    - row: Number of rows in the board.
-    - col: Number of columns in the board.
-    - board: 2D list representing the current state of the board, initialized with '■'.
-    - piece: Empty dictionary to store pieces.
-    - corners: List of corner positions on the board.
-    - players_pieces: Dictionary storing positions occupied by each player.
-
-    """
-    
+        
     def __init__(self, size):
+    # Se inicializa un tablero size x size
 
-        """
-        Initializes a Board object with a board of size 'size x size'.
-
-        Parameters:
-        - size: Size of the board (same number of rows and columns).
-        """
-
-        self.row = size
-        self.col = size
+        self.row = size # Numero de filas en el tablero
+        self.col = size # Numero de columnas en el tablero
         self.board = [['■' for _ in range(self.col)] for _ in range(self.row)]
-        self.piece = {}
-        self.corners = [(0, 0), (0, self.col - 1), (self.row - 1, 0), (self.row - 1, self.col - 1)]
-        self.players_pieces = {}    
+        self.piece = {} # Diccionario vacio para almacenar las piezas
+        self.corners = [(0, 0), (0, self.col - 1), (self.row - 1, 0), (self.row - 1, self.col - 1)] # Lista de posiciones de las esquinas en el tablero 
+        #NO TOCAR
+        self.players_pieces = {} # Diccionario que almacena las pociones ocupadas por cada jugador
+        #self.piezas
+        self.jugadores = []
+
+ 
+
+# Colocacion de pieza en el tablero 
 
     def place_piece(self, piece, position, player):
+
+        # Piece, pieza a colocar en el tableor
+        # Position, poscicion donde se colocara
+        # Player, jugdor que coloca la pieza
         if not self.is_valid_placement(piece, position, player):
             return False
 
@@ -44,20 +38,30 @@ class Board:
                     self.board[x + i][y + j] = str(value)
                     if player.name not in self.players_pieces:
                         self.players_pieces[player.name] = []
+                        self.jugadores.append(player)
                     self.players_pieces[player.name].append((x + i, y + j))
+                    self.jugadores.append(player)
         
-        piece_tuple = tuple(tuple(row) for row in piece)
-        piece_tuple1 =tuple(tuple(row) for row in player.mirror_piece(piece))
-        piece_tuple2 = tuple(tuple(row) for row in player.transpose_piece(piece))
-        player.used_pieces.add(piece_tuple)
-        player.used_pieces.add(piece_tuple1)
-        player.used_pieces.add(piece_tuple2)
+        piece_list =  player.all_transpositions(piece)
+
+        player.used_pieces.extend(piece_list)
+        player.puntos_piezas.append(piece_list)
+
         return True
     
+ # Verificacion de la pieza en la posicion 
+
     def is_valid_placement(self, piece, position, player):
-        piece_tuple = tuple(tuple(row) for row in piece)
+
+        # piece, la pieza
+        # position, la posicion 
+        # player, el jugador
+
+        piece_tuple = piece
         if piece_tuple in player.used_pieces:
+
             #print("Pieza ya utilizada")
+
             return False
 
         x, y = position
@@ -94,33 +98,13 @@ class Board:
                         return False
         return True
     
-    def place_piece1(self, piece,position):
-        x, y =position
-        for i, row in enumerate(piece):
-            for j, value in enumerate(row):
-                if value == 1:
-                    self.board[x+i][y+j]= "1"
-                elif value == 2:
-                    self.board[x+i][y+j]= "2"
-                elif value == 3:
-                    self.board[x+i][y+j]= "3"
-                elif value == 4:
-                    self.board[x+i][y+j]= "4"
-                else:
-                    print("no DE BOARD")
 
+
+# Lista de las piezas disponibles para jugar con sus movimientos disponibles tambien
 
     def get_movable_pieces(self, player):
 
-        """
-        Returns the movable pieces available for a given player along with their valid positions.
-
-        Parameters:
-        - player: Player object for which to determine movable pieces.
-
-        Returns:
-        - List of tuples (piece number, piece, valid position).
-        """
+        #player, jugador
 
         movable_pieces = []
         for index, piece in enumerate(player.get_pieces()):
@@ -129,41 +113,53 @@ class Board:
                     if self.is_valid_placement(piece, (x, y), player):
                         movable_pieces.append((index + 1, piece, (x, y)))
                         break 
+        # Lista de tupla (Numero de pieza, pieza, posicion valida)
         return movable_pieces
-    def find_valid_moves(self, piece, player):
-        valid_moves = []
-        for x in range(self.row):
-            for y in range(self.col):
-                if self.is_valid_placement(piece, (x, y), player):
-                    valid_moves.append((x, y))
-        return valid_moves
+    
+    def cal_culo_de_puntos (self):
+        puntos = {}
+        culo = 0
+        for jugador in self.jugadores:
+            culo = 0
+            for piece in jugador.puntos_piezas:
+               culo = culo + self.heuristic_use_large_pieces_first(piece[0])
+            puntos[jugador.name]=culo
+        return puntos    
+            
+
+                    
+# Calculo de los puntajes de los jugadores
                     
     def calculate_scores(self):
-
-        """
-        Calculates player scores based on occupied positions on the board.
-
-        Returns:
-        - Dictionary where keys are player names and values are their scores.
-        """
 
         scores = {}
         total = 89
         for player in self.players_pieces:
             remaining_squares = len(self.players_pieces[player])
             scores[player] = total-remaining_squares
+
+        # Diccionario con los nombres y el valor (su puntaje)
         return scores
+    
+    def heuristic_use_large_pieces_first(self,matrix):
+
+        count = 0
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                if matrix[i][j] != '■':
+                    count= count + 1
+        return count
+    
+# Muestra el tablero en la consola 
+
     def display_board(self):
-        """
-        Displays the board in the console.
-        """        
         for row in self.board:
             print(' '.join(row))
 
+# Representacion en cadena del tablero
+
     def __repr__(self):
-        """
-        Returns a string representation of the board.
-        """
+
         return '\n'.join([' '.join(row) for row in self.board])
 
 
