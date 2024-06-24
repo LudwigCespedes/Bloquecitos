@@ -7,59 +7,81 @@ import random
 from collections import deque
 import heapq
 
+
+
 # Clase que representa los boots y el minimax
 
 class Bots:
 
     #"Acepto invitaciones para un trio"
-    def __init__(self, board,player):
+    def __init__(self):
 
-        self.board = board # Tablero
-        self.player = player # Jugador
+        self.time_start = 0
+        self.max_time = 0
 
 # BOT ALEATORIO 
 
-    def bot_aleatorio(self,board1,player1):
+    def bot_aleatorio(self,board,player):
 
-        state = copy.deepcopy(board1)
-        frontier = state.get_movable_pieces(player1)
-
-        #print(frontier) 
-        current_state= random.choice(frontier)
+        state = copy.deepcopy(board)
+        try:
+            frontier = state.get_movable_pieces(player)
+            current_state= random.choice(frontier)
+        except:
+            print(len(frontier))
+            print(f"El jugador {player.name} no tiene más piezas para jugar. Pasando el turno...")
+            return state  # Devuelve el estado actual del tablero sin realizar ningún movimiento
+        
         new_state = copy.deepcopy(current_state)
-        state.place_piece(new_state[1], new_state[2],player1)
+        state.place_piece(new_state[1], new_state[2],player)
         #state.display_board() 
 
-        # Nuevo estado del tablero despues del movimiento     
+        # Nuevo estado del tablero despues del movimiento
+        self.board = copy.deepcopy(state)     
         return state
        
 # BOT GREEDY
 
-    def bot_greedy(self,board1,player1):
+    def bot_greedy(self,board,player):
         
-        state = copy.deepcopy(board1)
-        frontier = self.add_heuristic_value(state.get_movable_pieces(player1))
-        current_state= max(frontier, key=lambda x: x[0])
+        state = copy.deepcopy(board)
+        try:
+            frontier = self.add_heuristic_value(state.get_movable_pieces(player))
+            current_state= max(frontier, key=lambda x: x[0])
+            
+        except:
+            print(frontier)
+            print(f"El jugador {player.name} no tiene más piezas para jugar. Pasando el turno...")
+            return state  # Devuelve el estado actual del tablero sin realizar ningún movimiento
+        
         new_state = copy.deepcopy(current_state)
-        state.place_piece(new_state[1], new_state[2],player1)
+        state.place_piece(new_state[1], new_state[2],player)
 
 
-        # Nuevo estado del tablero despues del movimiento     
+        # Nuevo estado del tablero despues del movimiento 
+        self.board = copy.deepcopy(state)     
         return state
     
 
 # BOT PEORES DECISIONES
 
-    def bot_peores_decisiones(self,board1,player1):
+    def bot_peores_decisiones(self,board,player):
 
-        state = copy.deepcopy(board1)
-        frontier = self.add_heuristic_value(state.get_movable_pieces(player1))
-        current_state= min(frontier, key=lambda x: x[0])
+        state = copy.deepcopy(board)
+        try:
+            frontier = self.add_heuristic_value(state.get_movable_pieces(player))
+            current_state= min(frontier, key=lambda x: x[0])
+        except:
+            print(len(frontier))
+            print(f"El jugador {player.name} no tiene más piezas para jugar. Pasando el turno...")
+            return state  # Devuelve el estado actual del tablero sin realizar ningún movimiento
+        
         new_state = copy.deepcopy(current_state)
-        state.place_piece(new_state[1], new_state[2],player1)
+        state.place_piece(new_state[1], new_state[2],player)
         #state.display_board()
 
-        # Nuevo estado del tablero despues del movimiento       
+        # Nuevo estado del tablero despues del movimiento
+        self.board = copy.deepcopy(state)       
         return state
     
 # Primera heuristica
@@ -105,7 +127,20 @@ class Bots:
                             break  # Solo cuenta una vez por pieza
         
         return count
+    
 
+    def heuristic_cal_culo_de_puntos (self):
+        puntos = {}
+        culo = 0
+        for jugador in self.jugadores:
+            culo = 0
+            for piece in jugador.puntos_piezas:
+               culo = culo + self.heuristic_use_large_pieces_first(piece[0])
+            puntos[jugador.name]=culo
+
+        ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
+        return ganadores  
+    
 # Quita heuristica
 
     def heurística_de_espacios_libres_adyacentes(self):
@@ -155,10 +190,9 @@ class Bots:
                 total_cost.append((self.heurística_de_espacios_libres_adyacentes(pieces) + 0.1) / max5)
         
         resultado = sum(total_cost)
-        return resultado
+        return resultado # Suma de valores heuristicos
 
-        # Suma de valores heuristicos
-        return resultado
+       
 
 
 # Cuenta las esquinas de una matriz donde hay valores no vacios
@@ -185,7 +219,12 @@ class Bots:
         # El numero de esquinas con valores no vacios
         return count
     
+    def _max(self):
+        pass
+    def _mini(self):
+        pass
     
+        
 # LAS METRICAS
 
     def metricas(ganador, puntos, tiempo_ejecucion, memoria_actual, memoria_maxima, ruta, tamaño_de_la_ruta):
@@ -228,6 +267,44 @@ class Bots:
 
 
 
-# EL MINIMAX
-class MiniMax(Bots):
-    pass
+    def is_terminal(self,board,player):
+        # Define si el estado es terminal (si el juego ha terminado)
+        tabla = copy.deepcopy(board)
+        #for player in tabla.jugadores:
+        #print(tabla.get_movable_pieces(player))
+        if tabla.get_movable_pieces(player):
+            return False
+            
+        return True
+    def children(self,board,player):
+        tabla = copy.deepcopy(board)
+        options = tabla.get_movable_pieces(player)
+        children = []
+        for option in options:
+            child = copy.deepcopy(board)
+            new_player = copy.deepcopy(player)
+            child.place_piece(option[1], option[2],new_player)
+            #print(len(new_player.used_pieces))
+            #len(child.p)
+            #child.remove
+            children.append([option,child,new_player])
+            #children.append(child)
+
+        return children
+
+    def maximize(self,board,player,alfa,beta,depth,max_time=5000):
+        #if time.time() - self.time_start >= max_time:
+        #    raise StopIteration("Out of time!")
+        
+        if self.is_terminal(board,player):
+            return None , board.cal_culo_de_puntos()
+        if depth <=0:
+            return None, board.cal_culo_de_puntos(player),"\n",board
+        
+        max_child, max_utility = None, float("-inf")
+        children = self.children(board,player)
+        for option, child, new_players  in children:
+            utility = self.maximize(child,new_players, alfa, beta, depth-1)
+
+            return utility
+

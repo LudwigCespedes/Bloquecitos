@@ -1,5 +1,6 @@
 import heapq
-from collections import deque
+from collections import OrderedDict
+import copy
 #from piece import *
 
 
@@ -17,7 +18,7 @@ class Board:
         #NO TOCAR
         self.players_pieces = {} # Diccionario que almacena las pociones ocupadas por cada jugador
         #self.piezas
-        self.jugadores = []
+        self.jugadores = [] # objetos player
 
  
 
@@ -116,16 +117,27 @@ class Board:
         # Lista de tupla (Numero de pieza, pieza, posicion valida)
         return movable_pieces
     
-    def cal_culo_de_puntos (self):
+    def cal_culo_de_puntos (self,player = False):
         puntos = {}
         culo = 0
+        total = 89
+        if player:
+            for piece in player.puntos_piezas:
+                culo = culo + self.heuristic_use_large_pieces_first(piece[0])
+            puntos[player.name]=total-culo
+            ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
+            return ganadores  
+
         for jugador in self.jugadores:
             culo = 0
             for piece in jugador.puntos_piezas:
                culo = culo + self.heuristic_use_large_pieces_first(piece[0])
-            puntos[jugador.name]=culo
-        return puntos    
+            puntos[jugador.name]=total-culo
+
+        ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
+        return ganadores  
             
+    
 
                     
 # Calculo de los puntajes de los jugadores
@@ -149,6 +161,8 @@ class Board:
                 if matrix[i][j] != '■':
                     count= count + 1
         return count
+    
+    
     
 # Muestra el tablero en la consola 
 
