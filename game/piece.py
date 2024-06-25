@@ -25,6 +25,7 @@ class Player:
             [self.color_type, self.color_type, self.color_type, self.color_type]
         ]
 
+
         self.P_2 = [
             [self.color_type, self.color_type, self.color_type, self.color_type],
             ['■', '■', self.color_type, '■']
@@ -37,9 +38,9 @@ class Player:
         ]
 
         self.P_4 = [
-            [self.color_type, self.color_type],
-            [self.color_type, '■'],
-            [self.color_type, '■']
+            [self.color_type, self.color_type, self.color_type,self.color_type],
+            ['■','■', '■',self.color_type],
+  
         ]
 
         self.P_5 = [
@@ -129,8 +130,7 @@ class Player:
         ]
 
         self.P_21 = [
-            [self.color_type,self.color_type]
-        ]
+            [self.color_type,self.color_type]]
     
 # JUGADOR 
 

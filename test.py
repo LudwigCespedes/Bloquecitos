@@ -20,7 +20,9 @@ def main1():
     
     #game = bot1.bot_greedy(game,jugador1)
     #game = bot1.bot_greedy(game,jugador1)
-    game = bot1.maximize(game,jugador1,float("-inf"),float("inf"),21)
+    jugada = bot1.solve(game,jugador1)
+    print(jugada)
+    game.place_piece(jugada[1],jugada[2],jugador1)
     print(game)
     #print(game[1])
     #print(game[2])

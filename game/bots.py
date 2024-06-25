@@ -325,18 +325,20 @@ class Bots:
 
         return children
 
-    def maximize(self,board,player,alfa,beta,depth,max_time=5000000):
+    def maximize(self,board,player,alfa,beta,depth,max_time=1):
         time_start = time.time() 
         if time.time() - time_start >= max_time:
+            print("si")
             raise StopIteration("Out of time!")
         
         if self.is_terminal(board,player):
-            print(board)
-            print(board.get_movable_pieces(player))
-            return None , board.cal_culo_de_puntos()
+            #print(board)
+            #print(board.cal_culo_de_puntos().values())
+            return None , board.cal_culo_de_puntos1()
         if depth <=0:
-            print(board)
-            return None, board.cal_culo_de_puntos(player),board
+            #print(board)
+            #print(board.cal_culo_de_puntos1(player))
+            return None, board.cal_culo_de_puntos1(player)
         
         max_child, max_utility = None, float("-inf")
         children = self.children(board,player)
@@ -344,17 +346,19 @@ class Bots:
         for option, child, new_players  in children:
 
             #if  child==children:
-            _ , utility = self.manimize(child,new_players, alfa, beta, depth-1)
+            _ , utility = self.minimize(child,new_players, alfa, beta, depth-1)
             #_,utility = self.maximize(child,new_players, alfa, beta, depth-1)
             if utility>max_utility:
-                max_child, max_utility = child, utility
+                max_child, max_utility = option, utility
             if max_utility>beta:
                 break
             if max_utility>alfa:
+
                 alfa = max_utility 
-        
+            alfa = max(alfa,max_utility)
         return max_child, max_utility
-    def minimize(self,board,player,alfa,beta,depth,max_time=5000000):
+    
+    def minimize(self,board,player,alfa,beta,depth,max_time=1):
 
         time_start = time.time() 
         if time.time() - time_start >= max_time:
@@ -362,13 +366,15 @@ class Bots:
         
         if self.is_terminal(board,player):
             #print(board)
-            print(board.get_movable_pieces(player))
-            return None , board.cal_culo_de_puntos()
+            #print(board.get_movable_pieces(player))
+            #print(board.cal_culo_de_puntos().values())
+            return None , board.cal_culo_de_puntos1()
         if depth <=0:
             #print(board)
-            return None, board.cal_culo_de_puntos(player),board
+            #print(board.cal_culo_de_puntos1(player))
+            return None, board.cal_culo_de_puntos1(player)
         
-        min_child, min_utility = None, float("-inf")
+        min_child, min_utility = None, float("inf")
         children = self.children(board,player)
 
         for option, child, new_players  in children:
@@ -378,16 +384,28 @@ class Bots:
             _,utility = self.maximize(child,new_players, alfa, beta, depth-1)
 
             if utility < min_utility:
-                min_child, min_utility = child, utility
+                min_child, min_utility = option, utility
 
             if min_utility<=alfa:
                 break
             if min_utility<beta:
                 beta = min_utility
-                
-
-
-
-        
+            
+            beta = min(beta,min_utility)
         return min_child, min_utility
+    
+    def solve(self, state,player):
+        a=[]
+
+        #for depth in range(10):
+            #try:
+        best_option, _ = self.maximize(state,player, float("-inf"), float("inf"), 1)
+        a.append(best_option)
+        print(a)
+           # except StopIteration:
+            #    break
+
+        #return best_option
+            
+
         
