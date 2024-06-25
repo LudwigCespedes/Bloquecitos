@@ -3,8 +3,7 @@ from game.piece import Player
 from game.bots import *
 
 
-def main():
-    pass
+
 def main1():
     game=Board(20)
     jugador1 = Player("Luis","red")#bot_greedy
@@ -21,11 +20,11 @@ def main1():
     
     #game = bot1.bot_greedy(game,jugador1)
     #game = bot1.bot_greedy(game,jugador1)
-    game = bot1.maximize(game,jugador1,52,52,3)
-    #print(game)
-    print(game[1])
-    print(game[2])
-    print(game[3])
+    game = bot1.maximize(game,jugador1,float("-inf"),float("inf"),21)
+    print(game)
+    #print(game[1])
+    #print(game[2])
+    #print(game[3])
 
 
 
@@ -136,6 +135,42 @@ def main1():
     #print(len(jugador4.puntos_piezas))
     print(game.cal_culo_de_puntos())
     """
+def main():
+    game=Board(20)
+    jugador1 = Player("Luis","red")#bot_greedy
+    jugador2= Player("Manolo","blue")#bot_peores_decisiones
+    jugador3= Player("Jose","yellow")#bot_aleatorio
+    jugador4= Player("Maria","pink")#bot_greedy
+    bot1=Bots()  
+    bot2=Bots() 
+    bot3=Bots() 
+    bot4 =Bots()
+    while True:
+        game = bot1.bot_greedy(game, jugador1)
+        if bot1.is_terminal(game, jugador1):
+            break
+        game = bot2.maximize(game, jugador2,alfa=float("inf"),beta=float("-inf"),depth=3)
+        #if bot1.is_terminal(game, jugador2):
+        #    break
+        game = bot3.bot_aleatorio(game[2], jugador3)
+        if bot1.is_terminal(game, jugador3):
+            break
+        game = bot4.bot_greedy(game, jugador4)
+        if bot1.is_terminal(game, jugador4):
+            break
+
+    # Final del juego, puedes imprimir los resultados o estadísticas aquí
+    print("El juego ha terminado.")
+    # Opcional: Mostrar el tablero final
+    print(game)
+    print(game.cal_culo_de_puntos())
+    # Opcional: Calcular y mostrar el puntaje final de los jugadores
+   # for player in [jugador1, jugador2, jugador3, jugador4]:
+    #    score = game.calculate_score(player)
+    #    print(f"Jugador {player.name} ({player.color}): {score} puntos")
+
+
+    
 if __name__ == "__main__":
     #■
     #print("░")

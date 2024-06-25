@@ -6,7 +6,7 @@ import copy
 import random
 from collections import deque
 import heapq
-
+from collections import OrderedDict
 
 
 # Clase que representa los boots y el minimax
@@ -28,9 +28,9 @@ class Bots:
             frontier = state.get_movable_pieces(player)
             current_state= random.choice(frontier)
         except:
-            print(len(frontier))
+            #print(len(frontier))
             print(f"El jugador {player.name} no tiene más piezas para jugar. Pasando el turno...")
-            return state  # Devuelve el estado actual del tablero sin realizar ningún movimiento
+            return state   # Devuelve el estado actual del tablero sin realizar ningún movimiento
         
         new_state = copy.deepcopy(current_state)
         state.place_piece(new_state[1], new_state[2],player)
@@ -262,8 +262,41 @@ class Bots:
         print(f"Archivo 'metricas.csv' actualizado con éxito.")
 
 #  LAS METRICAS 
-    def metricas_x_jugador():
-        pass
+    def metricas_x_jugador(ganador,enemigos, puntos, tiempo_ejecucion, memoria_actual, memoria_maxima, ruta, tamaño_de_la_ruta):
+        
+
+        # Ganador: Nombre del ganador
+        # Puntos: Puntos obtenidos por el jugador
+        # Tiempo_ejecucion: Tiempo total de ejecucion del juego 
+        # Memoria_actual: Uso actual de memoria durante el juego 
+        # Memoria_maxima: Pico maximo de uso de memoria durante el juego
+        # Ruta: Ruta tomada
+        # Tamano_de_la_ruta: Numero de acciones
+
+        if os.path.exists("..","metricas.csv"):
+            df = pd.read_csv("..","metricas.csv")
+        else:
+            df = pd.DataFrame(columns=["ganador","enemigos" ,"puntos", "tiempo_ejecucion", "memoria_actual", "memoria_maxima", "ruta", "tamaño_de_la_ruta"])
+        
+        # Crear un nuevo DataFrame con los datos a agregar
+        nuevo_dato = pd.DataFrame([{
+            "ganador": ganador, 
+            "enemigos": enemigos,
+            "puntos": puntos, 
+            "tiempo_ejecucion": tiempo_ejecucion, 
+            "memoria_actual": memoria_actual, 
+            "memoria_maxima": memoria_maxima, 
+            "ruta": ruta, 
+            "tamaño_de_la_ruta": tamaño_de_la_ruta
+        }])
+        
+        
+        df = pd.concat([df, nuevo_dato], ignore_index=True)
+        
+        df.to_csv("metricas.csv", index=False)
+        
+        print(f"Archivo 'metricas.csv' actualizado con éxito.")
+
 
 
 
@@ -292,19 +325,69 @@ class Bots:
 
         return children
 
-    def maximize(self,board,player,alfa,beta,depth,max_time=5000):
-        #if time.time() - self.time_start >= max_time:
-        #    raise StopIteration("Out of time!")
+    def maximize(self,board,player,alfa,beta,depth,max_time=5000000):
+        time_start = time.time() 
+        if time.time() - time_start >= max_time:
+            raise StopIteration("Out of time!")
         
         if self.is_terminal(board,player):
+            print(board)
+            print(board.get_movable_pieces(player))
             return None , board.cal_culo_de_puntos()
         if depth <=0:
-            return None, board.cal_culo_de_puntos(player),"\n",board
+            print(board)
+            return None, board.cal_culo_de_puntos(player),board
         
         max_child, max_utility = None, float("-inf")
         children = self.children(board,player)
+
         for option, child, new_players  in children:
-            utility = self.maximize(child,new_players, alfa, beta, depth-1)
 
-            return utility
+            #if  child==children:
+            _ , utility = self.manimize(child,new_players, alfa, beta, depth-1)
+            #_,utility = self.maximize(child,new_players, alfa, beta, depth-1)
+            if utility>max_utility:
+                max_child, max_utility = child, utility
+            if max_utility>beta:
+                break
+            if max_utility>alfa:
+                alfa = max_utility 
+        
+        return max_child, max_utility
+    def minimize(self,board,player,alfa,beta,depth,max_time=5000000):
 
+        time_start = time.time() 
+        if time.time() - time_start >= max_time:
+            raise StopIteration("Out of time!")
+        
+        if self.is_terminal(board,player):
+            #print(board)
+            print(board.get_movable_pieces(player))
+            return None , board.cal_culo_de_puntos()
+        if depth <=0:
+            #print(board)
+            return None, board.cal_culo_de_puntos(player),board
+        
+        min_child, min_utility = None, float("-inf")
+        children = self.children(board,player)
+
+        for option, child, new_players  in children:
+
+            #if  child==children:
+            #_ , utility = self.manimize(child,new_players, alfa, beta, depth-1)
+            _,utility = self.maximize(child,new_players, alfa, beta, depth-1)
+
+            if utility < min_utility:
+                min_child, min_utility = child, utility
+
+            if min_utility<=alfa:
+                break
+            if min_utility<beta:
+                beta = min_utility
+                
+
+
+
+        
+        return min_child, min_utility
+        
