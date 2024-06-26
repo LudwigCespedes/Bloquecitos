@@ -16,8 +16,8 @@ class Bots:
     #"Acepto invitaciones para un trio"
     def __init__(self):
 
-        self.time_start = 0
-        self.max_time = 0
+        self.max_depth = 1
+        self.max_time = 100
 
 # BOT ALEATORIO 
 
@@ -46,7 +46,7 @@ class Bots:
         
         state = copy.deepcopy(board)
         try:
-            frontier = self.add_heuristic_value(state.get_movable_pieces(player))
+            frontier = self.add_heuristic_value(state.get_movable_pieces(player),player,board)
             current_state= max(frontier, key=lambda x: x[0])
             
         except:
@@ -69,10 +69,10 @@ class Bots:
 
         state = copy.deepcopy(board)
         try:
-            frontier = self.add_heuristic_value(state.get_movable_pieces(player))
+            frontier = self.add_heuristic_value(state.get_movable_pieces(player),player,board)
             current_state= min(frontier, key=lambda x: x[0])
         except:
-            print(len(frontier))
+            #print(len(frontier))
             print(f"El jugador {player.name} no tiene más piezas para jugar. Pasando el turno...")
             return state  # Devuelve el estado actual del tablero sin realizar ningún movimiento
         
@@ -85,16 +85,6 @@ class Bots:
         return state
     
 # Primera heuristica
-    
-    def heuristic_expand_fast(self,piece):
-        pass
-
-# Segunda heuristica
-
-    def heuristic_block_opponents(self):
-        pass
-
-# Tercera heuristica (Piezas mas grandes primero)
 
     def heuristic_use_large_pieces_first(self,matrix):
 
@@ -105,7 +95,15 @@ class Bots:
                     count= count + 1
         return count
 
-# Cuarta heuristica
+
+    # Segunda heuristica
+
+    def heuristic_player_mobility(self,player,board):
+        mobility_score = len(board.get_movable_pieces(player))
+        #print(mobility_score)
+        return mobility_score
+    
+    # Tercera heuristica
 
     def heuristic_proximity_to_corner(self, matrix):
         count = 0
@@ -125,8 +123,46 @@ class Bots:
                         if abs(corner[0] - i) <= proximity_range and abs(corner[1] - j) <= proximity_range:
                             count += 1
                             break  # Solo cuenta una vez por pieza
-        
+       
         return count
+    
+    # Cuarta heuristica
+
+
+    def heuristic_minimize_opponent_pieces(self, player,player_name ):
+            
+        
+            for jugador in self.jugadores:
+                    if jugador.name != player_name:
+                        opponent_name = (player_name)
+                    opponent_moves = sum(1 for move in self.get_movable_pieces(opponent_name(player)))
+                    print(opponent_moves)
+            return len(self.players_pieces[opponent_moves])
+
+    
+
+
+    """
+    def heuristic_block_opponents(self, piece, board, opponent, player):
+        # Heurística para evaluar cuántas posiciones del oponente se bloquean con la pieza actual.
+        blocked_positions = 0
+        for move in board.get_movable_pieces(piece):
+            if move in opponent.positions:
+                blocked_positions += 1
+        return blocked_positions
+
+
+    def heuristic_control_center(self, piece, board):
+        center_x, center_y = 10,10
+        piece_x, piece_y = piece.position
+        distance_to_center = abs(center_x - piece_x) + abs(center_y - piece_y)
+        return max(0, board.max_distance - distance_to_center)
+    
+
+
+"""
+
+# Heuristica del minimax
     
 
     def heuristic_cal_culo_de_puntos (self):
@@ -141,18 +177,14 @@ class Bots:
         ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
         return ganadores  
     
-# Quita heuristica
-
-    def heurística_de_espacios_libres_adyacentes(self):
-        pass
 
 # Agregacion de valores heuristicos a las piezas moviles
     
-    def add_heuristic_value(self, get_movable_pieces):
+    def add_heuristic_value(self, get_movable_pieces,player,board):
         new_get_movable_pieces = []
 
         for get_movable in get_movable_pieces:
-            value = self.combined_heuristics(get_movable[1], heuristics=['heuristic_use_large_pieces_first', 'heurística_de_proximidad_a_la_esquina'])
+            value = self.combined_heuristics(get_movable[1],player, board)
             new_get_movable_pieces.append((value, get_movable[1], get_movable[2]))
         
         return new_get_movable_pieces
@@ -169,7 +201,7 @@ class Bots:
 
 # Combinacion de las heuristicas para obtener un valor heuristico combinado
 
-    def combined_heuristics(self, pieces, heuristics=['heuristic_use_large_pieces_first']):
+    def combined_heuristics(self, pieces, player,board, heuristics=['heuristic_use_large_pieces_first']):
         total_cost = []
         
         for heuristic in heuristics:
@@ -187,7 +219,13 @@ class Bots:
                 total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max4)
             elif heuristic == 'heurística_de_espacios_libres_adyacentes':
                 max5 = 1
-                total_cost.append((self.heurística_de_espacios_libres_adyacentes(pieces) + 0.1) / max5)
+                total_cost.append((self.heuristic_minimize_opponent_pieces(pieces) + 0.1) / max5)
+            elif heuristic == 'heuristic_minimize_opponent_pieces':
+                max5 = 5
+                total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max5)
+            elif heuristic == 'heuristic_player_mobility':
+                max5 = 5
+                total_cost.append((self.heuristic_player_mobility(player,board) + 0.1) / max5)
         
         resultado = sum(total_cost)
         return resultado # Suma de valores heuristicos
@@ -309,7 +347,7 @@ class Bots:
             return False
             
         return True
-    def children(self,board,player):
+    def children1(self,board,player):
         tabla = copy.deepcopy(board)
         options = tabla.get_movable_pieces(player)
         children = []
@@ -325,87 +363,62 @@ class Bots:
 
         return children
 
-    def maximize(self,board,player,alfa,beta,depth,max_time=1):
-        time_start = time.time() 
-        if time.time() - time_start >= max_time:
-            print("si")
-            raise StopIteration("Out of time!")
-        
-        if self.is_terminal(board,player):
-            #print(board)
-            #print(board.cal_culo_de_puntos().values())
-            return None , board.cal_culo_de_puntos1()
-        if depth <=0:
-            #print(board)
-            #print(board.cal_culo_de_puntos1(player))
-            return None, board.cal_culo_de_puntos1(player)
+
+    def solve(self, state, player,players):
+        self.start_time = time.time()
+        for depth in range(10000):
+            try:
+                best_option, _ = self.maximize(state, player, float("-inf"), float("inf"), depth,players)
+            except StopIteration:
+                break
+
+        return best_option
+
+    def maximize(self, board, player, alfa, beta, depth,players):
+        if self.should_stop(board, player, depth):
+            return None, self.evaluate(board, player)
         
         max_child, max_utility = None, float("-inf")
-        children = self.children(board,player)
+        for option, child, new_player in self.children1(board, player):
+            if child.name ==  player.name:
+                _, utility = self.maximize(child, new_player, alfa, beta, depth - 1,players)
 
-        for option, child, new_players  in children:
-
-            #if  child==children:
-            _ , utility = self.minimize(child,new_players, alfa, beta, depth-1)
-            #_,utility = self.maximize(child,new_players, alfa, beta, depth-1)
-            if utility>max_utility:
+            else:
+                _, utility = self.minimize(child, new_player, alfa, beta, depth - 1,players)
+            if utility > max_utility:
                 max_child, max_utility = option, utility
-            if max_utility>beta:
+            alfa = max(alfa, max_utility)
+            if max_utility >= beta:
                 break
-            if max_utility>alfa:
-
-                alfa = max_utility 
-            alfa = max(alfa,max_utility)
         return max_child, max_utility
-    
-    def minimize(self,board,player,alfa,beta,depth,max_time=1):
 
-        time_start = time.time() 
-        if time.time() - time_start >= max_time:
-            raise StopIteration("Out of time!")
-        
-        if self.is_terminal(board,player):
-            #print(board)
-            #print(board.get_movable_pieces(player))
-            #print(board.cal_culo_de_puntos().values())
-            return None , board.cal_culo_de_puntos1()
-        if depth <=0:
-            #print(board)
-            #print(board.cal_culo_de_puntos1(player))
-            return None, board.cal_culo_de_puntos1(player)
+    def minimize(self, board, player, alfa, beta, depth,players):
+        if self.should_stop(board, player, depth):
+            return None, self.evaluate(board, player)
         
         min_child, min_utility = None, float("inf")
-        children = self.children(board,player)
-
-        for option, child, new_players  in children:
-
-            #if  child==children:
-            #_ , utility = self.manimize(child,new_players, alfa, beta, depth-1)
-            _,utility = self.maximize(child,new_players, alfa, beta, depth-1)
-
+        for option, child, new_player in self.children1(board, player):
+            if child.name ==  player.name:
+                _, utility = self.maximize(child, new_player, alfa, beta, depth - 1,players)
+            else:
+                _, utility = self.minimize(child, new_player, alfa, beta, depth - 1,players)
+    
             if utility < min_utility:
                 min_child, min_utility = option, utility
-
-            if min_utility<=alfa:
+            beta = min(beta, min_utility)
+            if min_utility <= alfa:
                 break
-            if min_utility<beta:
-                beta = min_utility
-            
-            beta = min(beta,min_utility)
         return min_child, min_utility
-    
-    def solve(self, state,player):
-        a=[]
 
-        #for depth in range(10):
-            #try:
-        best_option, _ = self.maximize(state,player, float("-inf"), float("inf"), 1)
-        a.append(best_option)
-        print(a)
-           # except StopIteration:
-            #    break
+    def should_stop(self, board, player, depth):
+        if time.time() - self.start_time >= self.max_time:
+            raise StopIteration("¡Tiempo agotado!")
+        return depth <= 0 or self.is_terminal(board, player)
 
-        #return best_option
+    def evaluate(self, board, player):
+        return board.cal_culo_de_puntos1(player)
+
+
             
 
         

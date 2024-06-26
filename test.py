@@ -14,16 +14,17 @@ def main1():
     bot2=Bots() 
     bot3=Bots() 
     bot4 =Bots()
-    #bot4=MiniMax(game,jugador4,True)
-    #game=bot4.minimax(game,depth=3,alpha=float("inf"),beta="-inf",maximizingPlayer=False)
-    #print(a)
-    
-    #game = bot1.bot_greedy(game,jugador1)
-    #game = bot1.bot_greedy(game,jugador1)
-    jugada = bot1.solve(game,jugador1)
-    print(jugada)
-    game.place_piece(jugada[1],jugada[2],jugador1)
+    #bo(game,jugador4,True)
+    game=bot4.bot_peores_decisiones(game,jugador4)
+    game = bot4.bot_peores_decisiones(game,jugador4)
     print(game)
+    
+    #
+    #game = bot1.bot_greedy(game,jugador1)
+    #jugada = bot1.solve(game,jugador1)
+    #print(jugada)
+    #game.place_piece(jugada[1],jugada[2],jugador1)
+    #print(game)
     #print(game[1])
     #print(game[2])
     #print(game[3])
@@ -151,16 +152,18 @@ def main():
         game = bot1.bot_greedy(game, jugador1)
         if bot1.is_terminal(game, jugador1):
             break
-        game = bot2.maximize(game, jugador2,alfa=float("inf"),beta=float("-inf"),depth=3)
-        #if bot1.is_terminal(game, jugador2):
-        #    break
-        game = bot3.bot_aleatorio(game[2], jugador3)
+        a= bot2.solve(game, jugador2,[jugador1,jugador2,jugador3,jugador4])
+        game.place_piece(a[1], a[2], jugador2)
+        #print(a)
+        if bot2.is_terminal(game, jugador2):
+            break
+        game = bot3.bot_aleatorio(game, jugador3)
         if bot1.is_terminal(game, jugador3):
             break
         game = bot4.bot_greedy(game, jugador4)
         if bot1.is_terminal(game, jugador4):
             break
-
+        print(game)
     # Final del juego, puedes imprimir los resultados o estadísticas aquí
     print("El juego ha terminado.")
     # Opcional: Mostrar el tablero final
@@ -177,7 +180,7 @@ if __name__ == "__main__":
     #■
     #print("░")
     #game = Menu()
-    main1()
+    main()
     """
     game=Board(20)
     jugador = Player("Luis","yellow")
