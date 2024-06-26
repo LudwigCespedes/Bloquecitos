@@ -141,9 +141,9 @@ def main1():
 def main():
     game=Board(20)
     jugador1 = Player("Luis","red")#bot_greedy
-    jugador2= Player("Manolo","blue")#bot_peores_decisiones
+    jugador2= Player("Manolo","blue")#minimax
     jugador3= Player("Jose","yellow")#bot_aleatorio
-    jugador4= Player("Maria","pink")#bot_greedy
+    jugador4= Player("Maria","pink")#bot_peores_decisiones
     bot1=Bots()  
     bot2=Bots() 
     bot3=Bots() 
@@ -160,7 +160,7 @@ def main():
         game = bot3.bot_aleatorio(game, jugador3)
         if bot1.is_terminal(game, jugador3):
             break
-        game = bot4.bot_greedy(game, jugador4)
+        game = bot4.bot_peores_decisiones(game, jugador4)
         if bot1.is_terminal(game, jugador4):
             break
         print(game)

@@ -117,67 +117,47 @@ class Board:
         # Lista de tupla (Numero de pieza, pieza, posicion valida)
         return movable_pieces
     
-    def cal_culo_de_puntos3 (self,player = False):
-        puntos = {}
-        culo = 0
-        total = 89
-        if player:
-            for piece in player.puntos_piezas:
-                culo = culo + self.heuristic_use_large_pieces_first(piece[0])
-            puntos[player.name]=total-culo
-            ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
-            return ganadores  
-        
+
 
     
     def cal_culo_de_puntos (self,player = False):
         puntos = {}
-        culo = 0
+        cul = 0
         total = 89
         if player:
             for piece in player.puntos_piezas:
-                culo = culo + self.heuristic_use_large_pieces_first(piece[0])
-            puntos[player.name]=total-culo
+                cul = cul + self.heuristic_use_large_pieces_first(piece[0])
+            puntos[player.name]=total-cul
             ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
             return ganadores  
 
         for jugador in self.jugadores:
-            culo = 0
+            cul = 0
             for piece in jugador.puntos_piezas:
-               culo = culo + self.heuristic_use_large_pieces_first(piece[0])
-            puntos[jugador.name]=total-culo
+               cul = cul + self.heuristic_use_large_pieces_first(piece[0])
+            puntos[jugador.name]=total-cul
 
         ganadores = OrderedDict(sorted(puntos.items(), key=lambda x: x[1]))
         return ganadores  
+    
                     
     def cal_culo_de_puntos1 (self,player = False):
 
-        culo = 0
+        cul = 0
 
         if player:
             for piece in player.puntos_piezas:
-                culo = culo + self.heuristic_use_large_pieces_first(piece[0])
+                cul = cul + self.heuristic_use_large_pieces_first(piece[0])
         
-            return culo 
+            return cul
 
         for jugador in self.jugadores:
-            culo = 0
+            cul = 0
             for piece in jugador.puntos_piezas:
-               culo = culo + self.heuristic_use_large_pieces_first(piece[0])
+               cul = cul + self.heuristic_use_large_pieces_first(piece[0])
 
-        return culo  
-# Calculo de los puntajes de los jugadores
-                    
-    def calculate_scores(self):
+        return cul
 
-        scores = {}
-        total = 89
-        for player in self.players_pieces:
-            remaining_squares = len(self.players_pieces[player])
-            scores[player] = total-remaining_squares
-
-        # Diccionario con los nombres y el valor (su puntaje)
-        return scores
     
     def heuristic_use_large_pieces_first(self,matrix):
 

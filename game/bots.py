@@ -13,11 +13,10 @@ from collections import OrderedDict
 
 class Bots:
 
-    #"Acepto invitaciones para un trio"
     def __init__(self):
 
         self.max_depth = 1
-        self.max_time = 100
+        self.max_time = 100000
 
 # BOT ALEATORIO 
 
@@ -50,7 +49,7 @@ class Bots:
             current_state= max(frontier, key=lambda x: x[0])
             
         except:
-            print(frontier)
+            #print(frontier)
             print(f"El jugador {player.name} no tiene más piezas para jugar. Pasando el turno...")
             return state  # Devuelve el estado actual del tablero sin realizar ningún movimiento
         
@@ -114,7 +113,7 @@ class Bots:
             return count
 
         corners = [(0, 0), (0, cols-1), (rows-1, 0), (rows-1, cols-1)]
-        proximity_range = 2  # Considera piezas dentro de 2 celdas de las esquinas
+        proximity_range = 2  # piezas dentro de 2 celdas de las esquinas
 
         for i in range(rows):
             for j in range(cols):
@@ -139,7 +138,20 @@ class Bots:
                     print(opponent_moves)
             return len(self.players_pieces[opponent_moves])
 
+    # Quinta heuristica
     
+    def heuristic_control_borders(self, player, board):
+        border_pieces = 0
+        rows = len(board)
+        cols = len(board[0]) if rows > 0 else 0
+        
+        for i in range(rows):
+            for j in range(cols):
+                if board[i][j] == player:
+                    if i == 0 or i == rows-1 or j == 0 or j == cols-1:
+                        border_pieces += 1
+                        
+        return border_pieces
 
 
     """
@@ -178,6 +190,8 @@ class Bots:
         return ganadores  
     
 
+    
+
 # Agregacion de valores heuristicos a las piezas moviles
     
     def add_heuristic_value(self, get_movable_pieces,player,board):
@@ -205,27 +219,22 @@ class Bots:
         total_cost = []
         
         for heuristic in heuristics:
-            if heuristic == 'heuristic_expand_fast':
-                max1 = 1
-                total_cost.append((self.heuristic_expand_fast(pieces) + 0.1) / max1)
-            elif heuristic == 'heuristic_block_opponents':
-                max2 = 1
-                total_cost.append((self.heuristic_block_opponents(pieces) + 0.1) / max2)
-            elif heuristic == 'heuristic_use_large_pieces_first':
-                max3 = 5
-                total_cost.append((self.heuristic_use_large_pieces_first(pieces) + 0.1) / max3)
-            elif heuristic == 'heurística_de_proximidad_a_la_esquina':
-                max4 = 10  # Asume que puede haber hasta 10 piezas cercanas a las esquinas
-                total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max4)
-            elif heuristic == 'heurística_de_espacios_libres_adyacentes':
-                max5 = 1
-                total_cost.append((self.heuristic_minimize_opponent_pieces(pieces) + 0.1) / max5)
+            if heuristic == 'heuristic_use_large_pieces_first':
+                max1 = 5
+                total_cost.append((self.heuristic_use_large_pieces_first(pieces) + 0.1) / max1)
+            elif heuristic == 'heuristic_proximity_to_corner':
+                max2 = 4  
+                total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max2)
             elif heuristic == 'heuristic_minimize_opponent_pieces':
-                max5 = 5
-                total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max5)
+                max3 = 10
+                total_cost.append((self.heuristic_minimize_opponent_pieces(pieces,board.jugadores[-1]) + 0.1) / max3)
+            elif heuristic == 'heuristic_control_borders':
+                max4 = 4
+                total_cost.append((self.heuristic_control_borders(player,board) + 0.1) / max4)
             elif heuristic == 'heuristic_player_mobility':
-                max5 = 5
+                max5 = 168
                 total_cost.append((self.heuristic_player_mobility(player,board) + 0.1) / max5)
+
         
         resultado = sum(total_cost)
         return resultado # Suma de valores heuristicos
@@ -265,7 +274,7 @@ class Bots:
         
 # LAS METRICAS
 
-    def metricas(ganador, puntos, tiempo_ejecucion, memoria_actual, memoria_maxima, ruta, tamaño_de_la_ruta):
+    def metricas(ganador, puntos, tiempo_ejecucion, memoria_actual, memoria_maxima):
         
 
         # Ganador: Nombre del ganador
@@ -279,7 +288,7 @@ class Bots:
         if os.path.exists("..","metricas.csv"):
             df = pd.read_csv("..","metricas.csv")
         else:
-            df = pd.DataFrame(columns=["ganador", "puntos", "tiempo_ejecucion", "memoria_actual", "memoria_maxima", "ruta", "tamaño_de_la_ruta"])
+            df = pd.DataFrame(columns=["ganador", "puntos", "tiempo_ejecucion", "memoria_actual", "memoria_maxima"])
         
         # Crear un nuevo DataFrame con los datos a agregar
         nuevo_dato = pd.DataFrame([{
@@ -287,9 +296,7 @@ class Bots:
             "puntos": puntos, 
             "tiempo_ejecucion": tiempo_ejecucion, 
             "memoria_actual": memoria_actual, 
-            "memoria_maxima": memoria_maxima, 
-            "ruta": ruta, 
-            "tamaño_de_la_ruta": tamaño_de_la_ruta
+            "memoria_maxima": memoria_maxima
         }])
         
         
@@ -298,45 +305,6 @@ class Bots:
         df.to_csv("metricas.csv", index=False)
         
         print(f"Archivo 'metricas.csv' actualizado con éxito.")
-
-#  LAS METRICAS 
-    def metricas_x_jugador(ganador,enemigos, puntos, tiempo_ejecucion, memoria_actual, memoria_maxima, ruta, tamaño_de_la_ruta):
-        
-
-        # Ganador: Nombre del ganador
-        # Puntos: Puntos obtenidos por el jugador
-        # Tiempo_ejecucion: Tiempo total de ejecucion del juego 
-        # Memoria_actual: Uso actual de memoria durante el juego 
-        # Memoria_maxima: Pico maximo de uso de memoria durante el juego
-        # Ruta: Ruta tomada
-        # Tamano_de_la_ruta: Numero de acciones
-
-        if os.path.exists("..","metricas.csv"):
-            df = pd.read_csv("..","metricas.csv")
-        else:
-            df = pd.DataFrame(columns=["ganador","enemigos" ,"puntos", "tiempo_ejecucion", "memoria_actual", "memoria_maxima", "ruta", "tamaño_de_la_ruta"])
-        
-        # Crear un nuevo DataFrame con los datos a agregar
-        nuevo_dato = pd.DataFrame([{
-            "ganador": ganador, 
-            "enemigos": enemigos,
-            "puntos": puntos, 
-            "tiempo_ejecucion": tiempo_ejecucion, 
-            "memoria_actual": memoria_actual, 
-            "memoria_maxima": memoria_maxima, 
-            "ruta": ruta, 
-            "tamaño_de_la_ruta": tamaño_de_la_ruta
-        }])
-        
-        
-        df = pd.concat([df, nuevo_dato], ignore_index=True)
-        
-        df.to_csv("metricas.csv", index=False)
-        
-        print(f"Archivo 'metricas.csv' actualizado con éxito.")
-
-
-
 
     def is_terminal(self,board,player):
         # Define si el estado es terminal (si el juego ha terminado)
@@ -366,7 +334,7 @@ class Bots:
 
     def solve(self, state, player,players):
         self.start_time = time.time()
-        for depth in range(10000):
+        for depth in range(2):
             try:
                 best_option, _ = self.maximize(state, player, float("-inf"), float("inf"), depth,players)
             except StopIteration:
@@ -376,11 +344,11 @@ class Bots:
 
     def maximize(self, board, player, alfa, beta, depth,players):
         if self.should_stop(board, player, depth):
-            return None, self.evaluate(board, player)
+            return None, self.evaluate1(board, player)
         
         max_child, max_utility = None, float("-inf")
         for option, child, new_player in self.children1(board, player):
-            if child.name ==  player.name:
+            if new_player  ==  player.name:
                 _, utility = self.maximize(child, new_player, alfa, beta, depth - 1,players)
 
             else:
@@ -394,11 +362,11 @@ class Bots:
 
     def minimize(self, board, player, alfa, beta, depth,players):
         if self.should_stop(board, player, depth):
-            return None, self.evaluate(board, player)
+            return None, -self.evaluate1(board, player)
         
         min_child, min_utility = None, float("inf")
         for option, child, new_player in self.children1(board, player):
-            if child.name ==  player.name:
+            if new_player.name ==  player.name:
                 _, utility = self.maximize(child, new_player, alfa, beta, depth - 1,players)
             else:
                 _, utility = self.minimize(child, new_player, alfa, beta, depth - 1,players)
@@ -417,8 +385,45 @@ class Bots:
 
     def evaluate(self, board, player):
         return board.cal_culo_de_puntos1(player)
+    def evaluate1(self,board, player):
+        #print(player.used_pieces)
+        if len(player.used_pieces):
+            return  self.combined_heuristics(player.used_pieces[-8],player,board)
+        return self.evaluate(board, player)
 
-
+    def combined_heuristics_for_minimax(self, player,board, heuristics=['heuristic_use_large_pieces_first']):
+        pieces = player.used_pieces
+        
+        if pieces:
+        
+            print(pieces)
+            total_cost = []
+            
+            for heuristic in heuristics:
+                if heuristic == 'heuristic_expand_fast':
+                    max1 = 1
+                    total_cost.append((self.heuristic_expand_fast(player) + 0.1) / max1)
+                elif heuristic == 'heuristic_use_large_pieces_first':
+                    max3 = 5
+                    total_cost.append((self.heuristic_use_large_pieces_first(pieces) + 0.1) / max3)
+                elif heuristic == 'heurística_de_proximidad_a_la_esquina':
+                    max4 = 10  # Asume que puede haber hasta 10 piezas cercanas a las esquinas
+                    total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max4)
+                elif heuristic == 'heurística_de_espacios_libres_adyacentes':
+                    max5 = 1
+                    total_cost.append((self.heuristic_minimize_opponent_pieces(pieces) + 0.1) / max5)
+                elif heuristic == 'heuristic_minimize_opponent_pieces':
+                    max5 = 5
+                    total_cost.append((self.heuristic_proximity_to_corner(pieces) + 0.1) / max5)
+                elif heuristic == 'heuristic_player_mobility':
+                    max5 = 5
+                    total_cost.append((self.heuristic_player_mobility(player,board) + 0.1) / max5)
+            
+            resultado = sum(total_cost)
+            return resultado # Suma de valores heuristicos
+        else:
+                
+            return board.cal_culo_de_puntos1(player)
             
 
         
